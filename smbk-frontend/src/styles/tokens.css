@@ -1,0 +1,52 @@
+/* ============================================================
+   DESIGN TOKENS
+   Satu-satunya tempat warna, tipografi, radius, dan spacing didefinisikan.
+   Tema "nota warung": kertas buram, tinta gelap, cap hijau pandan.
+   ============================================================ */
+
+:root {
+  --color-paper: #edefe6;
+  --color-surface: #ffffff;
+  --color-surface-sunk: #f6f7f1;
+  --color-ink: #111a15;
+  --color-ink-soft: #55655b;
+  --color-ink-faint: #8b998f;
+  --color-line: #d5dbcc;
+  --color-brand: #146b4a;
+  --color-brand-ink: #0b3f2c;
+  --color-brand-wash: #dff0e6;
+  --color-accent: #e0a21b;
+  --color-accent-wash: #fbeecd;
+  --color-danger: #b8392a;
+  --color-danger-wash: #f8e2de;
+
+  --font-display: 'Bricolage Grotesque', 'Public Sans', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.375rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 0 rgba(17, 26, 21, 0.06), 0 8px 24px -16px rgba(17, 26, 21, 0.4);
+  --shadow-lift: 0 12px 32px -12px rgba(17, 26, 21, 0.35);
+
+  --tap-target: 48px;
+}
