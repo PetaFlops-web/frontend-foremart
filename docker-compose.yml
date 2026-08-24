@@ -5,16 +5,16 @@ services:
       dockerfile: Dockerfile
     container_name: nota-frontend
     ports:
-      - "80:80"
+      - "3080:80"
     environment:
       # Alamat backend dari dalam container.
       # - Docker Desktop (Mac/Windows): http://host.docker.internal:8080
       # - Linux: http://172.17.0.1:8080 (bridge gateway default)
       #   atau tambahkan extra_hosts di bawah.
       BACKEND_URL: "http://host.docker.internal:8080"
-    # Untuk Linux, uncomment 2 baris di bawah supaya host.docker.internal tersedia:
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"
+    # Untuk Linux, tambahkan extra_hosts supaya host.docker.internal tersedia:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     networks:
       - nota-network
