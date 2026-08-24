@@ -1,140 +1,149 @@
 # Nota — Frontend
 
-Frontend React (Vite) untuk aplikasi catatan warung. Dibangun langsung dari
-kode backend (`backend-foremart`, Go/Fiber) dan ML service
-(`ml-foremart`, FastAPI) yang di-upload — bukan dari asumsi/dokumentasi
-saja — supaya kontrak API-nya benar-benar cocok.
+Aplikasi web React (Vite) untuk mencatat penjualan, mengelola stok, dan
+melihat prakiraan restock warung. Frontend ini berkomunikasi dengan backend
+Go/Fiber melalui path `/api` dan **tidak pernah** memanggil ML service
+secara langsung.
+
+## Fitur
+
+- **Autentikasi** — Login dan registrasi akun warung
+- **Manajemen Toko** — Buat dan hubungkan toko ke akun
+- **Laporan Harian** — Ringkasan penjualan hari ini
+- **Catat Transaksi** — Pencatatan penjualan manual (cari produk → atur qty/harga → simpan)
+- **Manajemen Produk** — Tambah, edit, hapus produk
+- **Riwayat Transaksi** — Lihat semua transaksi yang pernah dicatat
+- **Prakiraan Restock** — Prediksi produk yang perlu distok ulang (dihasilkan backend via ML)
+- **Manajemen Pelanggan** — Kelola data pelanggan
+- **Notifikasi** — Pemberitahuan dan alert
 
 ## Prasyarat
 
-- **Node.js** versi 18 atau lebih baru
-- **npm** versi 9 atau lebih baru
+- **Node.js** versi 18+
+- **npm** versi 9+
 - Backend Go sudah berjalan di `http://127.0.0.1:8080`
 
 ## Cara Menjalankan
 
-### 1. Pastikan Backend Berjalan
+### Development (Vite Dev Server)
 
-Jalankan backend Go terlebih dahulu (lihat README backend):
+1. **Pastikan backend sudah berjalan** (lihat README backend):
+   ```bash
+   docker compose up --build -d   # dari folder backend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Konfigurasi environment (opsional):**
+
+   Buat file `.env` jika backend berjalan di alamat selain default:
+   ```env
+   VITE_BACKEND_URL=http://127.0.0.1:8080
+   ```
+
+4. **Jalankan dev server:**
+   ```bash
+   npm run dev
+   ```
+
+   Buka `http://localhost:5173`. Vite otomatis mem-proxy semua request
+   `/api/*` ke backend.
+
+### Production (Docker Compose)
+
+1. **Build dan jalankan container:**
+   ```bash
+   docker compose up --build -d
+   ```
+
+   Container akan build React app (multi-stage: Node → Nginx), lalu serve
+   di port `3080`.
+
+2. **Akses aplikasi:**
+   ```
+   http://localhost:3080
+   ```
+
+3. **Konfigurasi backend URL** — edit `BACKEND_URL` di `docker-compose.yml`:
+   ```yaml
+   environment:
+     BACKEND_URL: "http://host.docker.internal:8080"
+   ```
+
+4. **Matikan container:**
+   ```bash
+   docker compose down
+   ```
+
+### Build Manual (tanpa Docker)
+
 ```bash
-docker compose up --build -d
+npm run build      # hasil build di folder dist/
+npm run preview    # preview hasil build di browser
 ```
-
-Backend inilah yang memanggil ML service, frontend ini **tidak pernah** 
-bicara langsung ke ML service.
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Konfigurasi Environment (Opsional)
-
-Buat file `.env` di root folder jika backend-mu berjalan di alamat selain default:
-
-```env
-VITE_BACKEND_URL=http://127.0.0.1:8080
-```
-
-Jika tidak dibuat, Vite akan menggunakan default `http://127.0.0.1:8080`.
-
-### 4. Jalankan Development Server
-
-```bash
-npm run dev
-```
-
-Buka `http://localhost:5173` di browser.
-
-Vite akan otomatis mem-proxy semua request `/api/*` ke backend 
-(`VITE_BACKEND_URL` atau `127.0.0.1:8080`).
-
-### 5. Build untuk Production
-
-```bash
-npm run build
-```
-
-Hasil build akan ada di folder `dist/`. Untuk preview:
-
-```bash
-npm run preview
-```
-
-## Keputusan Penting yang Diambil Berdasarkan Kode Backend
-
-### Tidak Ada Fitur Catat-via-Suara
-`POST /transactions/extract/voice` memang ada modelnya di kode, tapi 
-route-nya di-comment di `internal/modules/transaction/route.go`. Fitur 
-ini belum aktif, jadi halaman Catat di sini cuma menyediakan pencatatan 
-manual (cari produk → atur qty/harga → simpan), supaya tidak ada tombol 
-yang kelihatan jalan tapi sebenarnya selalu gagal.
-
-### Prakiraan Restock Lewat Backend, Bukan ML Langsung
-Backend menyediakan `POST /restock-predictions/_generate` yang di baliknya 
-mengambil histori transaksi lalu memanggil ML service sendiri, dan 
-`GET /restock-predictions` untuk melihat hasil yang tersimpan. Frontend 
-cukup panggil dua endpoint itu.
-
-### Store Diakses Lewat `/stores/:id`
-Bukan `/stores` tanpa id (dokumen `docs/swagger.yaml` di repo backend 
-sempat menuliskannya tanpa id, tapi kode controller & usecase-nya konsisten 
-pakai `:id`, jadi frontend ini mengikuti kode, bukan dokumen). Karena tidak 
-ada endpoint "daftar toko milik saya", id toko disimpan di `localStorage` 
-setelah dibuat.
-
-### `context/AppContext.jsx` Ditulis dari Nol
-File ini (login/register/logout, load user & store saat refresh) ditulis 
-dari nol — tidak pernah ada di upload sebelumnya meski dipakai di mana-mana 
-lewat `useApp()`.
 
 ## Struktur Proyek
 
 ```
 src/
-├── main.jsx                  Entry point aplikasi
-├── App.jsx                   Routing utama
+├── main.jsx                  Entry point (mount React ke DOM)
+├── App.jsx                   Routing & layout utama
 ├── context/
-│   └── AppContext.jsx        Auth + store state management
+│   └── AppContext.jsx        Global state: auth, user, toko (via useApp())
 ├── components/
-│   └── Layout.jsx            Shell + bottom tab bar + route guard
+│   └── Layout.jsx            Shell app: bottom tab bar + route guard
 ├── lib/
-│   ├── api.js                Satu pintu ke backend (axios instance)
-│   └── format.js             Helper: rupiah, tanggal, angka
+│   ├── api.js                HTTP client ke backend (fetch /api/*)
+│   └── format.js             Helper: format rupiah, tanggal, angka
 ├── styles/
-│   ├── tokens.css            Design tokens (warna, spacing, dll)
-│   └── global.css            Global styles
+│   ├── tokens.css            Design tokens (warna, spacing, typography)
+│   └── app.css               Global styles
 └── pages/
-    ├── Masuk.jsx             Login
-    ├── Daftar.jsx            Register
-    ├── Toko.jsx              Setup/hubungkan toko
-    ├── HariIni.jsx           Laporan harian
-    ├── Catat.jsx             Catat transaksi (manual)
+    ├── Masuk.jsx             Halaman login
+    ├── Daftar.jsx            Halaman registrasi
+    ├── Toko.jsx              Setup & hubungkan toko
+    ├── HariIni.jsx           Dashboard laporan harian
+    ├── Catat.jsx             Catat transaksi penjualan
     ├── Produk.jsx            CRUD produk
     ├── Riwayat.jsx           Riwayat transaksi
-    └── Prakiraan.jsx         Restock predictions (via backend)
+    ├── Prakiraan.jsx         Prediksi restock
+    ├── Pelanggan.jsx         Manajemen pelanggan
+    ├── Prediksi.jsx          Halaman prediksi
+    └── Notifikasi.jsx        Halaman notifikasi
 ```
+
+## Scripts
+
+| Script           | Fungsi                              |
+|------------------|-------------------------------------|
+| `npm run dev`    | Dev server dengan hot reload        |
+| `npm run build`  | Build production ke folder `dist/`  |
+| `npm run preview`| Preview hasil build production      |
+
+## Teknologi
+
+- **React 18** — UI library
+- **React Router 6** — Client-side routing
+- **Vite 5** — Build tool & dev server
+- **Nginx** (Docker) — Static file server + reverse proxy untuk production
 
 ## Troubleshooting
 
-### Backend tidak reachable
-- Pastikan backend Go sudah berjalan: `docker ps` harus menunjukkan container backend
-- Cek `VITE_BACKEND_URL` di file `.env` jika menggunakan alamat custom
-- Pastikan port 8080 tidak diblokir firewall
+**Backend tidak reachable**
+Pastikan backend Go sudah berjalan (`docker ps`) dan port 8080 tidak diblokir.
+Cek `VITE_BACKEND_URL` di `.env` jika menggunakan alamat custom.
 
-### CORS error di browser
-- Ini tidak seharusnya terjadi karena Vite proxy semua request `/api/*`
-- Jika tetap muncul, pastikan kamu mengakses via `localhost:5173`, bukan langsung ke backend
+**CORS error di browser**
+Pastikan mengakses via `localhost:5173` (dev) atau `localhost:3080` (Docker),
+bukan langsung ke alamat backend. Proxy menangani CORS secara transparan.
 
-### Port 5173 sudah dipakai
-Vite akan otomatis mencari port lain (5174, 5175, dst). Perhatikan output terminal untuk tahu port yang dipakai.
+**Port 5173 sudah dipakai**
+Vite otomatis mencari port berikutnya (5174, 5175, dst). Perhatikan output
+terminal untuk tahu port yang dipakai.
 
-## Scripts yang Tersedia
-
-```bash
-npm run dev      # Jalankan development server (hot reload)
-npm run build    # Build untuk production
-npm run preview  # Preview hasil build production
-npm run lint     # Jalankan ESLint (jika dikonfigurasi)
-```
+**Container nginx gagal start (Docker)**
+Pastikan port 3080 belum dipakai proses lain. Cek logs dengan
+`docker compose logs frontend`.
