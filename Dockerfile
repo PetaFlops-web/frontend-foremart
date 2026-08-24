@@ -18,6 +18,9 @@ RUN npm run build
 # Stage 2: Serve dengan Nginx
 FROM nginx:alpine
 
+# Install wget untuk healthcheck
+RUN apk add --no-cache wget
+
 # Hapus default config nginx
 RUN rm /etc/nginx/conf.d/default.conf
 
