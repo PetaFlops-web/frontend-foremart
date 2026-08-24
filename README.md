@@ -1,8 +1,8 @@
 # Nota — Frontend
 
 Frontend React (Vite) untuk aplikasi catatan warung. Dibangun langsung dari
-kode backend (`backend-shop-smbk`, Go/Fiber) dan ML service
-(`ML-shop-smbk`, FastAPI) yang di-upload — bukan dari asumsi/dokumentasi
+kode backend (`backend-foremart`, Go/Fiber) dan ML service
+(`ml-foremart`, FastAPI) yang di-upload — bukan dari asumsi/dokumentasi
 saja — supaya kontrak API-nya benar-benar cocok.
 
 ## Prasyarat
