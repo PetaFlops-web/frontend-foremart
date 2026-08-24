@@ -5,10 +5,12 @@ import Masuk from './pages/Masuk'
 import Daftar from './pages/Daftar'
 import Toko from './pages/Toko'
 import HariIni from './pages/HariIni'
-import Catat from './pages/Catat'
 import Produk from './pages/Produk'
 import Riwayat from './pages/Riwayat'
 import Prakiraan from './pages/Prakiraan'
+import Pelanggan from './pages/Pelanggan'
+import Prediksi from './pages/Prediksi'
+import Notifikasi from './pages/Notifikasi'
 
 export default function App() {
   return (
@@ -26,6 +28,9 @@ export default function App() {
               <Route path="/produk" element={<Produk />} />
               <Route path="/riwayat" element={<Riwayat />} />
               <Route path="/prakiraan" element={<Prakiraan />} />
+              <Route path="/pelanggan" element={<Pelanggan />} />
+              <Route path="/prediksi" element={<Prediksi />} />
+              <Route path="/notifikasi" element={<Notifikasi />} />
             </Route>
           </Route>
 

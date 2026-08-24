@@ -136,3 +136,28 @@ export const restockApi = {
   list: (storeId) => request('/restock-predictions', { params: { store_id: storeId } }),
   generate: (body) => request('/restock-predictions/_generate', { method: 'POST', body }),
 }
+
+/* ---------------- Customer (pelanggan) ---------------- */
+// Pencarian pakai query string: store_id & page & size wajib, search opsional.
+// Phone wajib (E.164, awalan 62 tanpa +/0). Name boleh kosong.
+export const customerApi = {
+  list: (params) => request('/customers', { params }),
+  get: (id) => request(`/customers/${id}`),
+  create: (body) => request('/customers', { method: 'POST', body }),
+}
+
+/* ---------------- Survival prediction (pembelian ulang) ---------------- */
+// Backend menghitung fitur survival dari riwayat pembelian customer terhadap
+// satu produk lalu memanggil ML (/predict-survival). FE hanya kirim ketiga id.
+// Jika customer belum pernah beli produk itu, backend balas 404.
+export const survivalApi = {
+  predict: (body) => request('/predict-survival', { method: 'POST', body }),
+}
+
+/* ---------------- Notifikasi pembelian ulang (WhatsApp via Fonnte) ---------------- */
+// _send memicu pengiriman manual (alur sama persis dengan cron harian backend).
+// list mengambil log notifikasi tersimpan untuk toko ini.
+export const notificationApi = {
+  list: (storeId) => request('/notifications', { params: { store_id: storeId } }),
+  send: () => request('/notifications/_send', { method: 'POST' }),
+}

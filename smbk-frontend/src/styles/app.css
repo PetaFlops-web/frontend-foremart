@@ -103,9 +103,9 @@ a {
   transform: translateX(-50%);
   bottom: calc(12px + env(safe-area-inset-bottom));
   width: min(528px, calc(100% - 32px));
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  background: var(--color-ink);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
   border-radius: var(--radius-pill);
   padding: 6px;
   box-shadow: var(--shadow-lift);
@@ -125,6 +125,8 @@ a {
   font-weight: 600;
   min-height: var(--tap-target);
   justify-content: center;
+  flex: 1 0 auto;
+  min-width: 72px;
 }
 
 .tabbar a.is-active {

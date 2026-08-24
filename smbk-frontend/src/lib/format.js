@@ -33,3 +33,5 @@ export const waktuSingkat = (unixSeconds) => {
 // bukan cuma "YYYY-MM-DD" — jadi input <input type="date"> harus dikonversi
 // sebelum dikirim, kalau tidak Go gagal parse dan balas 400.
 export const keRFC3339 = (isoDate) => (isoDate ? `${isoDate}T00:00:00Z` : undefined)
+
+export const persen = (v) => `${Math.round((Number(v) || 0) * 100)}%`

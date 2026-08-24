@@ -6,6 +6,8 @@ const TABS = [
   { to: '/catat', label: 'Catat', icon: '⏺' },
   { to: '/produk', label: 'Produk', icon: '☰' },
   { to: '/riwayat', label: 'Riwayat', icon: '↺' },
+  { to: '/pelanggan', label: 'Pelanggan', icon: '☎' },
+  { to: '/prediksi', label: 'Prediksi', icon: '↗' },
 ]
 
 export function ProtectedRoute() {
