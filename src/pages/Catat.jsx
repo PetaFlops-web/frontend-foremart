@@ -42,7 +42,7 @@ export default function Catat() {
         setPelanggan(res.data || [])
       })
       .catch((err) => alive && console.warn('Failed to load customers:', err))
-      .finally(() => alive && setLoadingProducts(false))
+      .finally(() => alive && setLoadingProduk(false))
     
     return () => {
       alive = false
