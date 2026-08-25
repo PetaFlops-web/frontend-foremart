@@ -13,7 +13,9 @@ import { rupiah } from '../lib/format'
 export default function Catat() {
   const { store } = useApp()
   const [produk, setProduk] = useState([])
+  const [pelanggan, setPelanggan] = useState([])
   const [cariProduk, setCariProduk] = useState('')
+  const [customerId, setCustomerId] = useState('') // Default empty = no customer
   const [items, setItems] = useState([])
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
@@ -21,11 +23,30 @@ export default function Catat() {
   const [loadingProduk, setLoadingProduk] = useState(true)
 
   useEffect(() => {
+    let alive = true
+    
+    // Load products
     productApi
       .list({ store_id: store.id, size: 100 })
-      .then((res) => setProduk(res.data || []))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoadingProduk(false))
+      .then((res) => {
+        if (!alive) return
+        setProduk(res.data || [])
+      })
+      .catch((err) => alive && setError(err.message))
+    
+    // Load customers (optional - user can choose 'no customer')
+    customerApi
+      .list({ store_id: store.id, page: 1, size: 100 })
+      .then((res) => {
+        if (!alive) return
+        setPelanggan(res.data || [])
+      })
+      .catch((err) => alive && console.warn('Failed to load customers:', err))
+      .finally(() => alive && setLoadingProducts(false))
+    
+    return () => {
+      alive = false
+    }
   }, [store.id])
 
   const hasilCari = useMemo(() => {
@@ -52,10 +73,19 @@ export default function Catat() {
     setError('')
     setStatus('Menyimpan transaksi…')
     try {
-      const res = await transactionApi.create({
+      // customer_id is optional - send null/empty if not selected
+      const request = {
         store_id: store.id,
-        items: siap.map((it) => ({ product_id: it.product_id, qty: Number(it.qty), selling_price_final: Number(it.harga) })),
-      })
+        source: 'manual',
+        customer_id: customerId ? Number(customerId) : null, // Send null if no customer selected
+        items: siap.map((it) => ({ 
+          product_id: it.product_id, 
+          qty: Number(it.qty), 
+          selling_price_final: Number(it.harga) 
+        })),
+      }
+      
+      const res = await transactionApi.create(request)
       setSaved(res.data)
       setItems([])
       setStatus('')
@@ -94,6 +124,28 @@ export default function Catat() {
 
       {(produk.length > 0 || loadingProduk) && (
         <>
+          {/* Customer Selection */}
+          <div className="field" style={{ marginBottom: 16 }}>
+            <label htmlFor="pelanggan-catat">Pelanggan (opsional)</label>
+            <select 
+              id="pelanggan-catat" 
+              value={customerId} 
+              onChange={(e) => setCustomerId(e.target.value)}
+              disabled={loadingProduk}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--color-line)' }}
+            >
+              <option value="">— Tidak ada pelanggan —</option>
+              {pelanggan.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name || 'Tanpa nama'} ({p.phone})
+                </option>
+              ))}
+            </select>
+            <p className="field__hint" style={{ marginTop: 4, marginBottom: 12 }}>
+              Pilih pelanggan dari daftar, atau biarkan kosong jika transaksi untuk pembeli umum.
+            </p>
+          </div>
+
           <div className="field">
             <label htmlFor="cari-produk">Cari produk</label>
             <input
