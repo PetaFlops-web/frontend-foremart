@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { productApi, transactionApi } from '../lib/api'
+import { productApi, transactionApi, customerApi } from '../lib/api'
 import { useApp } from '../context/AppContext'
 import { rupiah } from '../lib/format'
 
